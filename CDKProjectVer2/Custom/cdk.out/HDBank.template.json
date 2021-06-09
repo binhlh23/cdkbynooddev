@@ -1,0 +1,1368 @@
+{
+  "Resources": {
+    "HDBankVPCCB8E7D43": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "EnableDnsHostnames": true,
+        "EnableDnsSupport": true,
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "HDBank/HDBankVPC"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBankVPC/Resource"
+      }
+    },
+    "Private1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.1.0/24",
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        },
+        "AvailabilityZone": "ap-southeast-1a",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Private_1"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Private_1"
+      }
+    },
+    "Private2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.3.0/24",
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        },
+        "AvailabilityZone": "ap-southeast-1a",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Private_2"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Private_2"
+      }
+    },
+    "Public1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.2.0/24",
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        },
+        "AvailabilityZone": "ap-southeast-1a",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Public_1"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Public_1"
+      }
+    },
+    "Public2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.4.0/24",
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        },
+        "AvailabilityZone": "ap-southeast-1b",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Public_2"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Public_2"
+      }
+    },
+    "PrivateDB1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.5.0/24",
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        },
+        "AvailabilityZone": "ap-southeast-1a",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Private_DB_1"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Private_DB_1"
+      }
+    },
+    "PrivateDB2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.7.0/24",
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        },
+        "AvailabilityZone": "ap-southeast-1b",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Private_DB_2"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Private_DB_2"
+      }
+    },
+    "HDBankALBDAA50D7E": {
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "Properties": {
+        "LoadBalancerAttributes": [
+          {
+            "Key": "deletion_protection.enabled",
+            "Value": "false"
+          }
+        ],
+        "Name": "HDBankALB",
+        "Scheme": "internet-facing",
+        "SecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "HDBankALBSecurityGroupD8585ABD",
+              "GroupId"
+            ]
+          }
+        ],
+        "Subnets": [
+          {
+            "Ref": "Public1"
+          },
+          {
+            "Ref": "Public2"
+          }
+        ],
+        "Type": "application"
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBankALB/Resource"
+      }
+    },
+    "HDBankALBSecurityGroupD8585ABD": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Automatically created Security Group for ELB HDBankHDBankALB8D4A8B37",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Any access ALB 80",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80
+          }
+        ],
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBankALB/SecurityGroup/Resource"
+      }
+    },
+    "HDBankALBSecurityGrouptoHDBankHDBankAInstanceSecurityGroupFAF92BE180EC8D3AB1": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Fn::GetAtt": [
+            "HDBankALBSecurityGroupD8585ABD",
+            "GroupId"
+          ]
+        },
+        "IpProtocol": "tcp",
+        "Description": "ALB access 80",
+        "DestinationSecurityGroupId": {
+          "Fn::GetAtt": [
+            "HDBankAInstanceSecurityGroup46C86B78",
+            "GroupId"
+          ]
+        },
+        "FromPort": 80,
+        "ToPort": 80
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBankALB/SecurityGroup/to HDBankHDBankAInstanceSecurityGroupFAF92BE1:80"
+      }
+    },
+    "HDBankALBSecurityGrouptoHDBankHDBankAInstanceSecurityGroupFAF92BE12257B4A480": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Fn::GetAtt": [
+            "HDBankALBSecurityGroupD8585ABD",
+            "GroupId"
+          ]
+        },
+        "IpProtocol": "tcp",
+        "Description": "ALB access 22",
+        "DestinationSecurityGroupId": {
+          "Fn::GetAtt": [
+            "HDBankAInstanceSecurityGroup46C86B78",
+            "GroupId"
+          ]
+        },
+        "FromPort": 22,
+        "ToPort": 22
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBankALB/SecurityGroup/to HDBankHDBankAInstanceSecurityGroupFAF92BE1:22"
+      }
+    },
+    "HDBankALBSecurityGrouptoHDBankHDBankBInstanceSecurityGroup2A7C04AF801FC69489": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Fn::GetAtt": [
+            "HDBankALBSecurityGroupD8585ABD",
+            "GroupId"
+          ]
+        },
+        "IpProtocol": "tcp",
+        "Description": "ALB access 80",
+        "DestinationSecurityGroupId": {
+          "Fn::GetAtt": [
+            "HDBankBInstanceSecurityGroup01571975",
+            "GroupId"
+          ]
+        },
+        "FromPort": 80,
+        "ToPort": 80
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBankALB/SecurityGroup/to HDBankHDBankBInstanceSecurityGroup2A7C04AF:80"
+      }
+    },
+    "HDBankALBSecurityGrouptoHDBankHDBankBInstanceSecurityGroup2A7C04AF2282328612": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Fn::GetAtt": [
+            "HDBankALBSecurityGroupD8585ABD",
+            "GroupId"
+          ]
+        },
+        "IpProtocol": "tcp",
+        "Description": "ALB access 22",
+        "DestinationSecurityGroupId": {
+          "Fn::GetAtt": [
+            "HDBankBInstanceSecurityGroup01571975",
+            "GroupId"
+          ]
+        },
+        "FromPort": 22,
+        "ToPort": 22
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBankALB/SecurityGroup/to HDBankHDBankBInstanceSecurityGroup2A7C04AF:22"
+      }
+    },
+    "HDBankALBlisten80423F5B90": {
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "HDBankALBlisten80addTargetGroupGroupFDE878D4"
+            },
+            "Type": "forward"
+          }
+        ],
+        "LoadBalancerArn": {
+          "Ref": "HDBankALBDAA50D7E"
+        },
+        "Port": 80,
+        "Protocol": "HTTP"
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBankALB/listen_80/Resource"
+      }
+    },
+    "HDBankALBlisten80addTargetGroupGroupFDE878D4": {
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "Properties": {
+        "Port": 80,
+        "Protocol": "HTTP",
+        "Targets": [
+          {
+            "Id": {
+              "Ref": "HDBankA37C2411D"
+            },
+            "Port": 80
+          },
+          {
+            "Id": {
+              "Ref": "HDBankBF316F918"
+            },
+            "Port": 80
+          }
+        ],
+        "TargetType": "instance",
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBankALB/listen_80/addTargetGroupGroup/Resource"
+      }
+    },
+    "InternetGW": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Internet GW"
+      }
+    },
+    "InternetGWATTACHMENT": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGW"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Internet GW-ATTACHMENT"
+      }
+    },
+    "NATGW1": {
+      "Type": "AWS::EC2::NatGateway",
+      "Properties": {
+        "AllocationId": "eipalloc-0f53fb48bec107a3c",
+        "SubnetId": {
+          "Ref": "Public1"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "NATGW_1"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/NATGW_1"
+      }
+    },
+    "PulicToInternet": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Pulic_To_Internet"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Pulic_To_Internet"
+      }
+    },
+    "PrivateToInternet": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Private_To_Internet"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Private_To_Internet"
+      }
+    },
+    "Local": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "Local"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Local"
+      }
+    },
+    "PulicToInternetroute0": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PulicToInternet"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGW"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Pulic_To_Internet-route-0"
+      }
+    },
+    "PrivateToInternetroute0": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateToInternet"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "NATGW1"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Private_To_Internet-route-0"
+      }
+    },
+    "Private1Association": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateToInternet"
+        },
+        "SubnetId": {
+          "Ref": "Private1"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Private_1-Association"
+      }
+    },
+    "Private2Association": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateToInternet"
+        },
+        "SubnetId": {
+          "Ref": "Private2"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Private_2-Association"
+      }
+    },
+    "Public1Association": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PulicToInternet"
+        },
+        "SubnetId": {
+          "Ref": "Public1"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Public_1-Association"
+      }
+    },
+    "Public2Association": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PulicToInternet"
+        },
+        "SubnetId": {
+          "Ref": "Public2"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Public_2-Association"
+      }
+    },
+    "PrivateDB1Association": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "Local"
+        },
+        "SubnetId": {
+          "Ref": "PrivateDB1"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Private_DB_1-Association"
+      }
+    },
+    "PrivateDB2Association": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "Local"
+        },
+        "SubnetId": {
+          "Ref": "PrivateDB2"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/Private_DB_2-Association"
+      }
+    },
+    "HDBankAInstanceSecurityGroup46C86B78": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "HDBank/HDBank-A/InstanceSecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Any access 80",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Any access SSH",
+            "FromPort": 22,
+            "IpProtocol": "tcp",
+            "ToPort": 22
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "HDBank-A"
+          }
+        ],
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-A/InstanceSecurityGroup/Resource"
+      }
+    },
+    "HDBankAInstanceSecurityGroupfromHDBankHDBankALBSecurityGroup1488CB8C80B61CDAE8": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "IpProtocol": "tcp",
+        "Description": "ALB access 80",
+        "FromPort": 80,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "HDBankAInstanceSecurityGroup46C86B78",
+            "GroupId"
+          ]
+        },
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "HDBankALBSecurityGroupD8585ABD",
+            "GroupId"
+          ]
+        },
+        "ToPort": 80
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-A/InstanceSecurityGroup/from HDBankHDBankALBSecurityGroup1488CB8C:80"
+      }
+    },
+    "HDBankAInstanceSecurityGroupfromHDBankHDBankALBSecurityGroup1488CB8C225BF7442D": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "IpProtocol": "tcp",
+        "Description": "ALB access 22",
+        "FromPort": 22,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "HDBankAInstanceSecurityGroup46C86B78",
+            "GroupId"
+          ]
+        },
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "HDBankALBSecurityGroupD8585ABD",
+            "GroupId"
+          ]
+        },
+        "ToPort": 22
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-A/InstanceSecurityGroup/from HDBankHDBankALBSecurityGroup1488CB8C:22"
+      }
+    },
+    "HDBankAInstanceRole6B8319E4": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "ec2.",
+                      {
+                        "Ref": "AWS::URLSuffix"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "HDBank-A"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-A/InstanceRole/Resource"
+      }
+    },
+    "HDBankAInstanceProfile5F50B123": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "HDBankAInstanceRole6B8319E4"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-A/InstanceProfile"
+      }
+    },
+    "HDBankA37C2411D": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "AvailabilityZone": "ap-southeast-1a",
+        "IamInstanceProfile": {
+          "Ref": "HDBankAInstanceProfile5F50B123"
+        },
+        "ImageId": {
+          "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter"
+        },
+        "InstanceType": "t2.micro",
+        "KeyName": "key",
+        "PrivateIpAddress": "10.0.1.10",
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "HDBankAInstanceSecurityGroup46C86B78",
+              "GroupId"
+            ]
+          }
+        ],
+        "SubnetId": {
+          "Ref": "Private1"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "HDBank-A"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": "#!/bin/bash\n\necho -e \"\\n\\nUpdating Apt Packages and upgrading latest patches\\n\"\nsudo apt-get update -y && sudo apt-get upgrade -y\n\nsudo apt-get install apache2 apache2-doc apache2-mpm-prefork apache2-utils libexpat1 ssl-cert -y\n\necho -e \"\\n\\nInstalling PHP & Requirements\\n\"\nsudo apt-get install libapache2-mod-php7.0 php7.0 php7.0-common php7.0-curl php7.0-dev php7.0-gd php-pear php7.0-mcrypt php7.0-mysql -y\n\necho -e \"\\n\\nInstalling MySQL\\n\"\nsudo apt-get install mysql-server mysql-client -y\n\necho -e \"\\n\\nPermissions for /var/www\\n\"\nsudo chown -R www-data:www-data /var/www\necho -e \"\\n\\n Permissions have been set\\n\"\n\necho -e \"\\n\\nEnabling Modules\\n\"\nsudo a2enmod rewrite\nsudo phpenmod mcrypt\n\necho -e \"\\n\\nRestarting Apache\\n\"\nsudo service apache2 restart\n\necho -e \"\\n\\nLAMP Installation Completed\"\n\nexit 0"
+        }
+      },
+      "DependsOn": [
+        "HDBankAInstanceRole6B8319E4"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-A/Resource"
+      }
+    },
+    "HDBankBInstanceSecurityGroup01571975": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "HDBank/HDBank-B/InstanceSecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Any access 80",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Any access SSH",
+            "FromPort": 22,
+            "IpProtocol": "tcp",
+            "ToPort": 22
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "HDBank-B"
+          }
+        ],
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-B/InstanceSecurityGroup/Resource"
+      }
+    },
+    "HDBankBInstanceSecurityGroupfromHDBankHDBankALBSecurityGroup1488CB8C80EF7C2EB6": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "IpProtocol": "tcp",
+        "Description": "ALB access 80",
+        "FromPort": 80,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "HDBankBInstanceSecurityGroup01571975",
+            "GroupId"
+          ]
+        },
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "HDBankALBSecurityGroupD8585ABD",
+            "GroupId"
+          ]
+        },
+        "ToPort": 80
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-B/InstanceSecurityGroup/from HDBankHDBankALBSecurityGroup1488CB8C:80"
+      }
+    },
+    "HDBankBInstanceSecurityGroupfromHDBankHDBankALBSecurityGroup1488CB8C228202D743": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "IpProtocol": "tcp",
+        "Description": "ALB access 22",
+        "FromPort": 22,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "HDBankBInstanceSecurityGroup01571975",
+            "GroupId"
+          ]
+        },
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "HDBankALBSecurityGroupD8585ABD",
+            "GroupId"
+          ]
+        },
+        "ToPort": 22
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-B/InstanceSecurityGroup/from HDBankHDBankALBSecurityGroup1488CB8C:22"
+      }
+    },
+    "HDBankBInstanceRole89A0BB83": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "ec2.",
+                      {
+                        "Ref": "AWS::URLSuffix"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "HDBank-B"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-B/InstanceRole/Resource"
+      }
+    },
+    "HDBankBInstanceProfileCBCFA51E": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "HDBankBInstanceRole89A0BB83"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-B/InstanceProfile"
+      }
+    },
+    "HDBankBF316F918": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "AvailabilityZone": "ap-southeast-1a",
+        "IamInstanceProfile": {
+          "Ref": "HDBankBInstanceProfileCBCFA51E"
+        },
+        "ImageId": {
+          "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter"
+        },
+        "InstanceType": "t2.micro",
+        "KeyName": "key",
+        "PrivateIpAddress": "10.0.3.10",
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "HDBankBInstanceSecurityGroup01571975",
+              "GroupId"
+            ]
+          }
+        ],
+        "SubnetId": {
+          "Ref": "Private2"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "HDBank-B"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": "#!/bin/bash\n\necho -e \"\\n\\nUpdating Apt Packages and upgrading latest patches\\n\"\nsudo apt-get update -y && sudo apt-get upgrade -y\n\nsudo apt-get install apache2 apache2-doc apache2-mpm-prefork apache2-utils libexpat1 ssl-cert -y\n\necho -e \"\\n\\nInstalling PHP & Requirements\\n\"\nsudo apt-get install libapache2-mod-php7.0 php7.0 php7.0-common php7.0-curl php7.0-dev php7.0-gd php-pear php7.0-mcrypt php7.0-mysql -y\n\necho -e \"\\n\\nInstalling MySQL\\n\"\nsudo apt-get install mysql-server mysql-client -y\n\necho -e \"\\n\\nPermissions for /var/www\\n\"\nsudo chown -R www-data:www-data /var/www\necho -e \"\\n\\n Permissions have been set\\n\"\n\necho -e \"\\n\\nEnabling Modules\\n\"\nsudo a2enmod rewrite\nsudo phpenmod mcrypt\n\necho -e \"\\n\\nRestarting Apache\\n\"\nsudo service apache2 restart\n\necho -e \"\\n\\nLAMP Installation Completed\"\n\nexit 0"
+        }
+      },
+      "DependsOn": [
+        "HDBankBInstanceRole89A0BB83"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "HDBank/HDBank-B/Resource"
+      }
+    },
+    "DBPrimarySubnetGroupA3D48944": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "Subnet group for DBPrimary database",
+        "SubnetIds": [
+          {
+            "Ref": "PrivateDB1"
+          },
+          {
+            "Ref": "PrivateDB2"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/DBPrimary/SubnetGroup/Default"
+      }
+    },
+    "DBPrimarySecurityGroupA6CFC896": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Security group for DBPrimary database",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/DBPrimary/SecurityGroup/Resource"
+      }
+    },
+    "DBPrimarySecret443E1986": {
+      "Type": "AWS::SecretsManager::Secret",
+      "Properties": {
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Generated by the CDK for stack: ",
+              {
+                "Ref": "AWS::StackName"
+              }
+            ]
+          ]
+        },
+        "GenerateSecretString": {
+          "ExcludeCharacters": " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
+          "GenerateStringKey": "password",
+          "PasswordLength": 30,
+          "SecretStringTemplate": "{\"username\":\"admin\"}"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/DBPrimary/Secret/Resource"
+      }
+    },
+    "DBPrimarySecretAttachmentF3C67786": {
+      "Type": "AWS::SecretsManager::SecretTargetAttachment",
+      "Properties": {
+        "SecretId": {
+          "Ref": "DBPrimarySecret443E1986"
+        },
+        "TargetId": {
+          "Ref": "DBPrimary9D105E48"
+        },
+        "TargetType": "AWS::RDS::DBInstance"
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/DBPrimary/Secret/Attachment/Resource"
+      }
+    },
+    "DBPrimary9D105E48": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "DBInstanceClass": "db.t2.micro",
+        "AllocatedStorage": "20",
+        "AvailabilityZone": "ap-southeast-1a",
+        "BackupRetentionPeriod": 7,
+        "CopyTagsToSnapshot": true,
+        "DBInstanceIdentifier": "DBPrimary",
+        "DBName": "DBPrimary",
+        "DBSubnetGroupName": {
+          "Ref": "DBPrimarySubnetGroupA3D48944"
+        },
+        "Engine": "mysql",
+        "MasterUsername": {
+          "Fn::Join": [
+            "",
+            [
+              "{{resolve:secretsmanager:",
+              {
+                "Ref": "DBPrimarySecret443E1986"
+              },
+              ":SecretString:username::}}"
+            ]
+          ]
+        },
+        "MasterUserPassword": {
+          "Fn::Join": [
+            "",
+            [
+              "{{resolve:secretsmanager:",
+              {
+                "Ref": "DBPrimarySecret443E1986"
+              },
+              ":SecretString:password::}}"
+            ]
+          ]
+        },
+        "PubliclyAccessible": false,
+        "StorageType": "gp2",
+        "VPCSecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "DBPrimarySecurityGroupA6CFC896",
+              "GroupId"
+            ]
+          }
+        ]
+      },
+      "UpdateReplacePolicy": "Snapshot",
+      "DeletionPolicy": "Snapshot",
+      "Metadata": {
+        "aws:cdk:path": "HDBank/DBPrimary/Resource"
+      }
+    },
+    "DBStanbySubnetGroupEFBB45EB": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "Subnet group for DBStanby database",
+        "SubnetIds": [
+          {
+            "Ref": "PrivateDB1"
+          },
+          {
+            "Ref": "PrivateDB2"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/DBStanby/SubnetGroup/Default"
+      }
+    },
+    "DBStanbySecurityGroupEB4E5157": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Security group for DBStanby database",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "VpcId": {
+          "Ref": "HDBankVPCCB8E7D43"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/DBStanby/SecurityGroup/Resource"
+      }
+    },
+    "DBStanbySecret27FE7F07": {
+      "Type": "AWS::SecretsManager::Secret",
+      "Properties": {
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Generated by the CDK for stack: ",
+              {
+                "Ref": "AWS::StackName"
+              }
+            ]
+          ]
+        },
+        "GenerateSecretString": {
+          "ExcludeCharacters": " %+~`#$&*()|[]{}:;<>?!'/@\"\\",
+          "GenerateStringKey": "password",
+          "PasswordLength": 30,
+          "SecretStringTemplate": "{\"username\":\"admin\"}"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/DBStanby/Secret/Resource"
+      }
+    },
+    "DBStanbySecretAttachment1411A43F": {
+      "Type": "AWS::SecretsManager::SecretTargetAttachment",
+      "Properties": {
+        "SecretId": {
+          "Ref": "DBStanbySecret27FE7F07"
+        },
+        "TargetId": {
+          "Ref": "DBStanby7A5A820E"
+        },
+        "TargetType": "AWS::RDS::DBInstance"
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/DBStanby/Secret/Attachment/Resource"
+      }
+    },
+    "DBStanby7A5A820E": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "DBInstanceClass": "db.t2.micro",
+        "AllocatedStorage": "20",
+        "AvailabilityZone": "ap-southeast-1b",
+        "BackupRetentionPeriod": 7,
+        "CopyTagsToSnapshot": true,
+        "DBInstanceIdentifier": "DBStanby",
+        "DBName": "DBStanby",
+        "DBSubnetGroupName": {
+          "Ref": "DBStanbySubnetGroupEFBB45EB"
+        },
+        "Engine": "mysql",
+        "MasterUsername": {
+          "Fn::Join": [
+            "",
+            [
+              "{{resolve:secretsmanager:",
+              {
+                "Ref": "DBStanbySecret27FE7F07"
+              },
+              ":SecretString:username::}}"
+            ]
+          ]
+        },
+        "MasterUserPassword": {
+          "Fn::Join": [
+            "",
+            [
+              "{{resolve:secretsmanager:",
+              {
+                "Ref": "DBStanbySecret27FE7F07"
+              },
+              ":SecretString:password::}}"
+            ]
+          ]
+        },
+        "PubliclyAccessible": false,
+        "StorageType": "gp2",
+        "VPCSecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "DBStanbySecurityGroupEB4E5157",
+              "GroupId"
+            ]
+          }
+        ]
+      },
+      "UpdateReplacePolicy": "Snapshot",
+      "DeletionPolicy": "Snapshot",
+      "Metadata": {
+        "aws:cdk:path": "HDBank/DBStanby/Resource"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAACn1RXWvCQBD8Lb6fp7aU0rf6UUQoJUTxfXNZ49XkLuxtKhLy33vJGY1Q+rS3M8MyMzeTs+mrnI7e4ezGKj1NamUJZb1lUCcRo7MVKRTLg4mAoEBGEktrHFOluIWHEk+kmrU1jWjP1aieZL0vVcvto2U7tlVikMUWVUWaL2uyVdnh/wIfGaFzLbwx3oG/sAbGM1yul6/bnL3rY4Gmc/YFQ1VsK8YdJDnetrufOzl3zioNbQix8THBhGgPdjZm4CdoGoE5ONYqt5AmkHtMm+zH55+XZa5Vd/HTc4uOa1s8PO5DnXaM5qrp3wN+B5T5CvqqBmsjNBSyjm0fM8zeZUT2oHNvllIn6xUwJODwljOUcbu7WgyBXu2bIOTA39O7DnUFGMiQZB0qo/DVfgSPjx/0N9M0jYgufLRm8izf5Mvo22k9psqwLlDGYf4CEoCuxbcCAAA="
+      },
+      "Metadata": {
+        "aws:cdk:path": "HDBank/CDKMetadata/Default"
+      },
+      "Condition": "CDKMetadataAvailable"
+    }
+  },
+  "Parameters": {
+    "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+      "Default": "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+    }
+  },
+  "Conditions": {
+    "CDKMetadataAvailable": {
+      "Fn::Or": [
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "af-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-northeast-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-northeast-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-southeast-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ap-southeast-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "ca-central-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "cn-north-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "cn-northwest-1"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-central-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-north-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-2"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "eu-west-3"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "me-south-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "sa-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-east-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-east-2"
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Or": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-west-1"
+              ]
+            },
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "us-west-2"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
